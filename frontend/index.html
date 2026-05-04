@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LoanHub — Bank Loan Portal</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --primary: #2563eb;
+  --primary-dark: #1d4ed8;
+  --primary-light: #eff6ff;
+  --success: #16a34a;
+  --success-light: #dcfce7;
+  --danger: #dc2626;
+  --danger-light: #fee2e2;
+  --warning: #d97706;
+  --warning-light: #fef3c7;
+  --gray-50: #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-300: #d1d5db;
+  --gray-400: #9ca3af;
+  --gray-500: #6b7280;
+  --gray-600: #4b5563;
+  --gray-700: #374151;
+  --gray-800: #1f2937;
+  --gray-900: #111827;
+  --sidebar-w: 240px;
+  --radius: 10px;
+  --shadow: 0 1px 3px rgba(0,0,0,.1), 0 1px 2px rgba(0,0,0,.06);
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,.1), 0 2px 4px -2px rgba(0,0,0,.1);
+}
+
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+       background: var(--gray-50); color: var(--gray-800); min-height: 100vh; }
+
+/* ── Auth layout ───────────────────────────────────────────────────────── */
+#auth-wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #1e3a5f 0%, #2563eb 60%, #60a5fa 100%);
+  padding: 24px;
+}
+#auth-wrapper.hidden { display: none; }
+
+.auth-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 40px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.25);
+}
+
+.auth-logo { text-align: center; margin-bottom: 28px; }
+.auth-logo svg { width: 44px; height: 44px; }
+.auth-logo h1 { font-size: 1.5rem; font-weight: 700; color: var(--gray-900); margin-top: 10px; }
+.auth-logo p  { font-size: .85rem; color: var(--gray-500); margin-top: 4px; }
+
+.auth-tabs { display: flex; background: var(--gray-100); border-radius: 8px; padding: 4px; margin-bottom: 28px; }
+.auth-tab  { flex: 1; padding: 8px; border: none; background: transparent; border-radius: 6px;
+             font-size: .9rem; font-weight: 500; color: var(--gray-500); cursor: pointer; transition: .15s; }
+.auth-tab.active { background: #fff; color: var(--primary); box-shadow: var(--shadow); }
+
+/* ── App shell ─────────────────────────────────────────────────────────── */
+#app-shell { display: flex; min-height: 100vh; }
+#app-shell.hidden { display: none; }
+
+/* ── Sidebar ────────────────────────────────────────────────────────────── */
+#sidebar {
+  width: var(--sidebar-w);
+  background: var(--gray-900);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  z-index: 50;
+  transition: transform .25s;
+}
+
+.sidebar-logo {
+  padding: 20px 20px 16px;
+  border-bottom: 1px solid rgba(255,255,255,.07);
+}
+.sidebar-logo h2 { font-size: 1.1rem; font-weight: 700; color: #fff; }
+.sidebar-logo span { font-size: .75rem; color: var(--gray-400); }
+
+.sidebar-user {
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(255,255,255,.07);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.user-avatar {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: var(--primary);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: .9rem; flex-shrink: 0;
+}
+.user-meta { min-width: 0; }
+.user-meta strong { display: block; font-size: .85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.user-meta span { font-size: .72rem; color: var(--gray-400); }
+
+nav.sidebar-nav { flex: 1; padding: 12px 10px; overflow-y: auto; }
+.nav-section { font-size: .68rem; font-weight: 600; color: var(--gray-500); text-transform: uppercase;
+               letter-spacing: .08em; padding: 16px 10px 6px; }
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 12px; border-radius: 7px; cursor: pointer;
+  font-size: .875rem; color: var(--gray-300);
+  transition: .12s; border: none; background: transparent; width: 100%; text-align: left;
+}
+.nav-item:hover { background: rgba(255,255,255,.06); color: #fff; }
+.nav-item.active { background: var(--primary); color: #fff; }
+.nav-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+.sidebar-footer { padding: 16px 10px; border-top: 1px solid rgba(255,255,255,.07); }
+.btn-logout {
+  width: 100%; padding: 9px 12px; background: rgba(255,255,255,.05);
+  border: 1px solid rgba(255,255,255,.1); border-radius: 7px; color: var(--gray-300);
+  cursor: pointer; font-size: .875rem; display: flex; align-items: center; gap: 10px; transition: .12s;
+}
+.btn-logout:hover { background: rgba(220,38,38,.2); border-color: rgba(220,38,38,.4); color: #fca5a5; }
+.btn-logout svg { width: 16px; height: 16px; }
+
+/* ── Main content ───────────────────────────────────────────────────────── */
+#main-content {
+  margin-left: var(--sidebar-w);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.topbar {
+  background: #fff;
+  border-bottom: 1px solid var(--gray-200);
+  padding: 14px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky; top: 0; z-index: 10;
+}
+.topbar h2 { font-size: 1.05rem; font-weight: 600; color: var(--gray-800); }
+.topbar-actions { display: flex; gap: 10px; align-items: center; }
+
+.content-area { padding: 28px; }
+
+/* ── Pages ───────────────────────────────────────────────────────────────── */
+.page { display: none; }
+.page.active { display: block; }
+
+/* ── Cards ───────────────────────────────────────────────────────────────── */
+.card {
+  background: #fff;
+  border-radius: var(--radius);
+  padding: 24px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--gray-200);
+  margin-bottom: 20px;
+}
+.card-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 20px;
+}
+.card-title { font-size: 1rem; font-weight: 600; color: var(--gray-800); }
+
+/* ── Stats grid ──────────────────────────────────────────────────────────── */
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 24px; }
+.stat-card {
+  background: #fff;
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--gray-200);
+}
+.stat-label { font-size: .75rem; font-weight: 500; color: var(--gray-500); text-transform: uppercase; letter-spacing: .05em; }
+.stat-value { font-size: 1.75rem; font-weight: 700; color: var(--gray-900); margin-top: 6px; }
+.stat-sub   { font-size: .8rem; color: var(--gray-400); margin-top: 2px; }
+.stat-card.blue   { border-top: 3px solid var(--primary); }
+.stat-card.green  { border-top: 3px solid var(--success); }
+.stat-card.yellow { border-top: 3px solid var(--warning); }
+.stat-card.red    { border-top: 3px solid var(--danger); }
+
+/* ── Forms ───────────────────────────────────────────────────────────────── */
+.form-group { margin-bottom: 18px; }
+label { display: block; font-size: .82rem; font-weight: 500; color: var(--gray-600); margin-bottom: 6px; }
+input, select, textarea {
+  width: 100%; padding: 9px 12px;
+  border: 1px solid var(--gray-300);
+  border-radius: 7px; font-size: .9rem;
+  color: var(--gray-800);
+  transition: border-color .15s, box-shadow .15s;
+  background: #fff;
+}
+input:focus, select:focus, textarea:focus {
+  outline: none; border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(37,99,235,.12);
+}
+textarea { resize: vertical; min-height: 80px; }
+
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media(max-width:560px){ .form-row { grid-template-columns: 1fr; } }
+
+/* ── Buttons ─────────────────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 9px 18px; border: none; border-radius: 7px;
+  cursor: pointer; font-size: .875rem; font-weight: 600;
+  transition: .15s; text-decoration: none;
+}
+.btn-primary { background: var(--primary); color: #fff; }
+.btn-primary:hover { background: var(--primary-dark); }
+.btn-success { background: var(--success); color: #fff; }
+.btn-success:hover { background: #15803d; }
+.btn-danger  { background: var(--danger); color: #fff; }
+.btn-danger:hover  { background: #b91c1c; }
+.btn-ghost   { background: transparent; color: var(--gray-600); border: 1px solid var(--gray-300); }
+.btn-ghost:hover   { background: var(--gray-100); }
+.btn-sm { padding: 5px 12px; font-size: .8rem; }
+.btn-full { width: 100%; justify-content: center; margin-top: 4px; }
+
+/* ── Alerts ──────────────────────────────────────────────────────────────── */
+.alert { padding: 10px 14px; border-radius: 7px; font-size: .86rem; margin-top: 12px; }
+.alert-error   { background: var(--danger-light); color: #991b1b; border: 1px solid #fca5a5; }
+.alert-success { background: var(--success-light); color: #14532d; border: 1px solid #86efac; }
+.alert-warning { background: var(--warning-light); color: #78350f; border: 1px solid #fcd34d; }
+
+/* ── Tables ──────────────────────────────────────────────────────────────── */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: .875rem; }
+th { background: var(--gray-50); text-align: left; padding: 10px 14px;
+     border-bottom: 2px solid var(--gray-200); color: var(--gray-500);
+     font-size: .75rem; text-transform: uppercase; letter-spacing: .06em; white-space: nowrap; }
+td { padding: 12px 14px; border-bottom: 1px solid var(--gray-100); vertical-align: middle; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: var(--gray-50); }
+.empty-row { text-align: center; color: var(--gray-400); padding: 32px 0 !important; }
+
+/* ── Badges ──────────────────────────────────────────────────────────────── */
+.badge {
+  display: inline-flex; align-items: center;
+  padding: 2px 9px; border-radius: 20px;
+  font-size: .72rem; font-weight: 600; white-space: nowrap;
+}
+.badge-pending  { background: var(--warning-light); color: #92400e; }
+.badge-approved { background: var(--success-light); color: #14532d; }
+.badge-rejected { background: var(--danger-light);  color: #7f1d1d; }
+.badge-active   { background: var(--success-light); color: #14532d; }
+.badge-inactive { background: var(--gray-100);      color: var(--gray-500); }
+.badge-client   { background: var(--primary-light); color: #1e40af; }
+.badge-manager  { background: #f3e8ff;              color: #6b21a8; }
+.badge-admin    { background: var(--danger-light);  color: #7f1d1d; }
+
+/* ── Modal ───────────────────────────────────────────────────────────────── */
+.modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,.45); z-index: 200;
+  align-items: center; justify-content: center; padding: 20px;
+}
+.modal-overlay.open { display: flex; }
+.modal-box {
+  background: #fff; border-radius: 14px; padding: 32px;
+  max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto;
+  box-shadow: 0 25px 60px rgba(0,0,0,.3);
+}
+.modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+.modal-title  { font-size: 1.05rem; font-weight: 600; color: var(--gray-800); }
+.modal-close  { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--gray-400); padding: 4px; border-radius: 4px; }
+.modal-close:hover { color: var(--gray-700); background: var(--gray-100); }
+
+.detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 20px; font-size: .9rem; }
+.detail-grid .dl { color: var(--gray-500); font-size: .78rem; }
+.detail-grid .dv { font-weight: 500; }
+</style>
+</head>
+<body>
+
+<!-- ── AUTH ───────────────────────────────────────────────────────────────── -->
+<div id="auth-wrapper">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <svg viewBox="0 0 44 44" fill="none">
+        <rect width="44" height="44" rx="10" fill="#2563eb"/>
+        <path d="M10 30V20l12-8 12 8v10H10z" fill="#fff" opacity=".9"/>
+        <rect x="18" y="24" width="8" height="6" rx="1" fill="#2563eb"/>
+      </svg>
+      <h1>LoanHub</h1>
+      <p>Bank Loan Management Portal</p>
+    </div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tab-login" onclick="switchAuthTab('login')">Sign In</button>
+      <button class="auth-tab" id="tab-register" onclick="switchAuthTab('register')">Register</button>
+    </div>
+
+    <!-- Login -->
+    <div id="login-form">
+      <div class="form-group">
+        <label>Email address</label>
+        <input id="login-email" type="email" placeholder="you@example.com">
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input id="login-password" type="password" placeholder="••••••••">
+      </div>
+      <div id="login-msg"></div>
+      <button class="btn btn-primary btn-full" onclick="doLogin()">Sign In</button>
+    </div>
+
+    <!-- Register -->
+    <div id="register-form" style="display:none">
+      <div class="form-group">
+        <label>Full Name</label>
+        <input id="reg-name" type="text" placeholder="John Doe">
+      </div>
+      <div class="form-group">
+        <label>Email address</label>
+        <input id="reg-email" type="email" placeholder="you@example.com">
+      </div>
+      <div class="form-group">
+        <label>Password <span style="color:var(--gray-400);font-size:.78rem">(min. 8 characters)</span></label>
+        <input id="reg-password" type="password" placeholder="••••••••">
+      </div>
+      <div id="reg-msg"></div>
+      <button class="btn btn-primary btn-full" onclick="doRegister()">Create Account</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── APP SHELL ───────────────────────────────────────────────────────────── -->
+<div id="app-shell" class="hidden">
+
+  <!-- Sidebar -->
+  <aside id="sidebar">
+    <div class="sidebar-logo">
+      <h2>LoanHub</h2>
+      <span>Bank Loan Portal</span>
+    </div>
+    <div class="sidebar-user">
+      <div class="user-avatar" id="user-avatar">?</div>
+      <div class="user-meta">
+        <strong id="user-name-side">—</strong>
+        <span id="user-role-side">—</span>
+      </div>
+    </div>
+    <nav class="sidebar-nav" id="sidebar-nav"></nav>
+    <div class="sidebar-footer">
+      <button class="btn-logout" onclick="logout()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+        Sign Out
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div id="main-content">
+    <div class="topbar">
+      <h2 id="page-title">Dashboard</h2>
+      <div class="topbar-actions" id="topbar-actions"></div>
+    </div>
+    <div class="content-area" id="content-area">
+      <!-- pages injected by JS -->
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL ───────────────────────────────────────────────────────────────── -->
+<div id="loan-modal" class="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-title">Loan Details</span>
+      <button class="modal-close" onclick="closeModal()">&#x2715;</button>
+    </div>
+    <div id="modal-detail" class="detail-grid" style="margin-bottom:16px"></div>
+    <div id="modal-decide" style="display:none">
+      <div style="border-top:1px solid var(--gray-200);padding-top:16px;margin-top:4px">
+        <div class="form-group">
+          <label>Decision comment <span style="color:var(--gray-400);font-size:.78rem">(optional)</span></label>
+          <textarea id="decide-comment" placeholder="Add a note…"></textarea>
+        </div>
+        <div id="decide-msg"></div>
+        <div style="display:flex;gap:10px;margin-top:12px">
+          <button class="btn btn-success btn-sm" onclick="decide('approved')">Approve</button>
+          <button class="btn btn-danger btn-sm" onclick="decide('rejected')">Reject</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = 'http://localhost:8080/api/v1';
+let accessToken  = localStorage.getItem('access_token')  || '';
+let refreshToken = localStorage.getItem('refresh_token') || '';
+let currentUser  = JSON.parse(localStorage.getItem('current_user') || 'null');
+let currentLoanId = null;
+
+// ── Tokens ────────────────────────────────────────────────────────────────────
+function saveTokens(d) {
+  accessToken  = d.access_token;
+  refreshToken = d.refresh_token || refreshToken;
+  localStorage.setItem('access_token',  accessToken);
+  localStorage.setItem('refresh_token', refreshToken);
+}
+function clearSession() {
+  accessToken = refreshToken = '';
+  currentUser = null;
+  ['access_token','refresh_token','current_user'].forEach(k => localStorage.removeItem(k));
+}
+
+// ── Fetch wrapper ─────────────────────────────────────────────────────────────
+async function apiFetch(path, opts = {}) {
+  opts.headers = { 'Content-Type': 'application/json', ...(opts.headers || {}) };
+  if (accessToken) opts.headers['Authorization'] = 'Bearer ' + accessToken;
+  let res = await fetch(API + path, opts);
+  if (res.status === 401 && refreshToken) {
+    const r = await fetch(API + '/auth/refresh', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refresh_token: refreshToken })
+    });
+    if (r.ok) {
+      const rb = await r.json(); saveTokens(rb.data || rb);
+      opts.headers['Authorization'] = 'Bearer ' + accessToken;
+      res = await fetch(API + path, opts);
+    } else {
+      clearSession(); showAuth(); return null;
+    }
+  }
+  return res;
+}
+
+// ── Alert helpers ─────────────────────────────────────────────────────────────
+function setAlert(id, text, type='error') {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.className = 'alert alert-' + type;
+  el.textContent = text;
+}
+function clearAlert(id) { const el = document.getElementById(id); if (el) { el.className=''; el.textContent=''; } }
+function errMsg(d) { return (d.error && d.error.message) || d.message || 'Something went wrong'; }
+
+// ── Formatting ────────────────────────────────────────────────────────────────
+function fmt(iso) { if (!iso) return '—'; return new Date(iso).toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'}); }
+function fmtMoney(n) { return '$' + Number(n).toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:2}); }
+function badge(v) {
+  const map = {
+    pending:'badge-pending', approved:'badge-approved', rejected:'badge-rejected',
+    true:'badge-active', false:'badge-inactive',
+    client:'badge-client', manager:'badge-manager', admin:'badge-admin'
+  };
+  const lbl = v === true ? 'Active' : v === false ? 'Inactive' : v;
+  return `<span class="badge ${map[v]||''}">${lbl}</span>`;
+}
+function initials(name) { return (name||'?').split(' ').map(w=>w[0]||'').join('').slice(0,2).toUpperCase(); }
+
+// ── Auth layout ───────────────────────────────────────────────────────────────
+function showAuth()  { document.getElementById('auth-wrapper').classList.remove('hidden'); document.getElementById('app-shell').classList.add('hidden'); }
+function showApp()   { document.getElementById('auth-wrapper').classList.add('hidden');    document.getElementById('app-shell').classList.remove('hidden'); }
+
+function switchAuthTab(t) {
+  document.getElementById('tab-login').classList.toggle('active', t === 'login');
+  document.getElementById('tab-register').classList.toggle('active', t === 'register');
+  document.getElementById('login-form').style.display    = t === 'login'    ? '' : 'none';
+  document.getElementById('register-form').style.display = t === 'register' ? '' : 'none';
+}
+
+// ── Sidebar builder ───────────────────────────────────────────────────────────
+const PAGES = {
+  client: [
+    { id:'my-loans',  label:'My Loans',      icon:iconList },
+    { id:'apply',     label:'Apply for Loan', icon:iconPlus },
+  ],
+  manager: [
+    { id:'dashboard', label:'Dashboard',      icon:iconDash },
+    { id:'all-loans', label:'All Loans',      icon:iconList },
+  ],
+  admin: [
+    { id:'dashboard', label:'Dashboard',      icon:iconDash },
+    { id:'all-loans', label:'All Loans',      icon:iconList },
+    { id:'users',     label:'Users',          icon:iconUsers },
+  ],
+};
+
+function iconDash()  { return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>`; }
+function iconList()  { return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>`; }
+function iconPlus()  { return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>`; }
+function iconUsers() { return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>`; }
+
+function buildSidebar() {
+  const role = currentUser.role;
+  const nav  = document.getElementById('sidebar-nav');
+  nav.innerHTML = '';
+  (PAGES[role] || []).forEach(p => {
+    const btn = document.createElement('button');
+    btn.className = 'nav-item'; btn.dataset.page = p.id;
+    btn.innerHTML = p.icon() + p.label;
+    btn.onclick = () => navigateTo(p.id);
+    nav.appendChild(btn);
+  });
+  document.getElementById('user-avatar').textContent  = initials(currentUser.full_name);
+  document.getElementById('user-name-side').textContent = currentUser.full_name || '—';
+  document.getElementById('user-role-side').textContent = role.charAt(0).toUpperCase() + role.slice(1);
+}
+
+function setActiveNav(pageId) {
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.toggle('active', b.dataset.page === pageId));
+}
+
+// ── Page navigation ───────────────────────────────────────────────────────────
+const PAGE_TITLES = { 'my-loans':'My Loans', apply:'Apply for a Loan', dashboard:'Dashboard', 'all-loans':'All Loan Applications', users:'User Management' };
+
+function navigateTo(pageId) {
+  document.getElementById('page-title').textContent = PAGE_TITLES[pageId] || pageId;
+  setActiveNav(pageId);
+  const ca = document.getElementById('content-area');
+  ca.innerHTML = '';
+
+  const tb = document.getElementById('topbar-actions');
+  tb.innerHTML = '';
+
+  switch(pageId) {
+    case 'my-loans':  renderMyLoans(ca); break;
+    case 'apply':     renderApply(ca);   break;
+    case 'dashboard': renderDashboard(ca, tb); break;
+    case 'all-loans': renderAllLoans(ca, tb); break;
+    case 'users':     renderUsers(ca);   break;
+  }
+}
+
+function applyRole() {
+  if (!currentUser) { showAuth(); return; }
+  showApp();
+  buildSidebar();
+  const role = currentUser.role;
+  if (role === 'client')         navigateTo('my-loans');
+  else if (role === 'manager')   navigateTo('dashboard');
+  else if (role === 'admin')     navigateTo('dashboard');
+}
+
+// ── Auth ──────────────────────────────────────────────────────────────────────
+async function loginWithCreds(email, password, msgId) {
+  try {
+    const res = await fetch(API + '/auth/login', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ email, password })
+    });
+    const body = await res.json().catch(() => ({}));
+    if (!res.ok) { setAlert(msgId, errMsg(body)); return false; }
+    const tokens = body.data || body;
+    saveTokens(tokens);
+    try {
+      const p = JSON.parse(atob(tokens.access_token.split('.')[1]));
+      currentUser = { id: p.sub, role: p.role, full_name: p.full_name || email };
+      localStorage.setItem('current_user', JSON.stringify(currentUser));
+    } catch {}
+    return true;
+  } catch (e) {
+    setAlert(msgId, 'Cannot reach API. Ensure backend is running on ' + API + '.');
+    return false;
+  }
+}
+
+async function doLogin() {
+  clearAlert('login-msg');
+  const email    = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  if (await loginWithCreds(email, password, 'login-msg')) applyRole();
+}
+
+async function doRegister() {
+  clearAlert('reg-msg');
+  const full_name = document.getElementById('reg-name').value.trim();
+  const email     = document.getElementById('reg-email').value.trim();
+  const password  = document.getElementById('reg-password').value;
+  try {
+    const res = await fetch(API + '/auth/register', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ full_name, email, password })
+    });
+    const body = await res.json().catch(() => ({}));
+    if (!res.ok) { setAlert('reg-msg', errMsg(body)); return; }
+    const user = body.data || body;
+    if (await loginWithCreds(email, password, 'reg-msg')) {
+      if (currentUser) currentUser.full_name = user.full_name || full_name;
+      localStorage.setItem('current_user', JSON.stringify(currentUser));
+      applyRole();
+    }
+  } catch (e) {
+    setAlert('reg-msg', 'Cannot reach API. Ensure backend is running on ' + API + '.');
+  }
+}
+
+async function logout() {
+  if (refreshToken) {
+    await apiFetch('/auth/logout', { method:'POST', body: JSON.stringify({ refresh_token: refreshToken }) });
+  }
+  clearSession();
+  showAuth();
+}
+
+// ── Client — My Loans ─────────────────────────────────────────────────────────
+function renderMyLoans(container) {
+  container.innerHTML = `
+    <div class="card">
+      <div class="card-header"><span class="card-title">Your Loan Applications</span>
+        <button class="btn btn-ghost btn-sm" onclick="navigateTo('my-loans')">Refresh</button>
+      </div>
+      <div id="ml-msg"></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Amount</th><th>Term</th><th>Purpose</th><th>Status</th><th>Applied</th><th></th></tr></thead>
+          <tbody id="ml-body"><tr><td colspan="6" class="empty-row">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </div>`;
+  loadMyLoans();
+}
+
+async function loadMyLoans() {
+  const res = await apiFetch('/loans');
+  if (!res) return;
+  const data = await res.json();
+  const tbody = document.getElementById('ml-body');
+  if (!tbody) return;
+  if (!res.ok) { setAlert('ml-msg', errMsg(data)); tbody.innerHTML=''; return; }
+  const loans = data.data || data;
+  if (!loans.length) { tbody.innerHTML = '<tr><td colspan="6" class="empty-row">No loan applications yet.</td></tr>'; return; }
+  tbody.innerHTML = loans.map(l => `<tr>
+    <td><strong>${fmtMoney(l.amount)}</strong></td>
+    <td>${l.term_months} mo</td>
+    <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${l.purpose}</td>
+    <td>${badge(l.status)}</td>
+    <td>${fmt(l.created_at)}</td>
+    <td style="display:flex;gap:6px;align-items:center">
+      <button class="btn btn-ghost btn-sm" onclick="openLoanDetail('${l.id}',false,false)">View</button>
+      ${l.status === 'pending' ? `<button class="btn btn-danger btn-sm" onclick="cancelLoan('${l.id}')">Cancel</button>` : ''}
+    </td>
+  </tr>`).join('');
+}
+
+async function cancelLoan(id) {
+  if (!confirm('Cancel this loan application?')) return;
+  const res = await apiFetch('/loans/' + id + '/cancel', { method:'PATCH' });
+  if (!res) return;
+  if (res.ok) { loadMyLoans(); }
+  else { const d = await res.json(); alert(errMsg(d)); }
+}
+
+// ── Client — Apply ────────────────────────────────────────────────────────────
+function renderApply(container) {
+  container.innerHTML = `
+    <div class="card" style="max-width:560px">
+      <div class="card-header"><span class="card-title">New Loan Application</span></div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Loan Amount (USD)</label>
+          <input id="loan-amount" type="number" min="100" max="10000000" placeholder="e.g. 15 000">
+        </div>
+        <div class="form-group">
+          <label>Term (months)</label>
+          <input id="loan-term" type="number" min="1" max="360" placeholder="e.g. 24">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Purpose</label>
+        <textarea id="loan-purpose" placeholder="Describe how you plan to use the funds…"></textarea>
+      </div>
+      <div id="apply-msg"></div>
+      <button class="btn btn-primary" onclick="applyLoan()">Submit Application</button>
+    </div>`;
+}
+
+async function applyLoan() {
+  clearAlert('apply-msg');
+  const amount     = parseFloat(document.getElementById('loan-amount').value);
+  const term_months = parseInt(document.getElementById('loan-term').value);
+  const purpose    = document.getElementById('loan-purpose').value.trim();
+  if (!amount || !term_months || !purpose) { setAlert('apply-msg','All fields are required.'); return; }
+  const res = await apiFetch('/loans', { method:'POST', body: JSON.stringify({ amount, term_months, purpose }) });
+  if (!res) return;
+  const data = await res.json();
+  if (!res.ok) { setAlert('apply-msg', errMsg(data)); return; }
+  setAlert('apply-msg','Application submitted successfully!','success');
+  document.getElementById('loan-amount').value = '';
+  document.getElementById('loan-term').value   = '';
+  document.getElementById('loan-purpose').value= '';
+}
+
+// ── Manager/Admin — Dashboard ─────────────────────────────────────────────────
+function renderDashboard(container, topbar) {
+  container.innerHTML = `
+    <div class="stats-grid">
+      <div class="stat-card blue"><div class="stat-label">Total Applications</div><div class="stat-value" id="st-total">—</div><div class="stat-sub">All time</div></div>
+      <div class="stat-card yellow"><div class="stat-label">Pending</div><div class="stat-value" id="st-pending">—</div><div class="stat-sub">Awaiting decision</div></div>
+      <div class="stat-card green"><div class="stat-label">Approved</div><div class="stat-value" id="st-approved">—</div></div>
+      <div class="stat-card red"><div class="stat-label">Rejected</div><div class="stat-value" id="st-rejected">—</div></div>
+    </div>
+    <div class="card" style="max-width:340px">
+      <div class="stat-label">Total Approved Portfolio</div>
+      <div class="stat-value" id="st-amount" style="font-size:1.4rem;margin-top:8px">—</div>
+    </div>`;
+  loadStats();
+}
+
+async function loadStats() {
+  const res = await apiFetch('/manager/stats');
+  if (!res || !res.ok) return;
+  const data = await res.json();
+  const s = data.data || data;
+  const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+  set('st-total',   s.total);
+  set('st-pending', s.pending);
+  set('st-approved', s.approved);
+  set('st-rejected', s.rejected);
+  set('st-amount',  fmtMoney(s.total_amount));
+}
+
+// ── Manager/Admin — All Loans ─────────────────────────────────────────────────
+function renderAllLoans(container, topbar) {
+  container.innerHTML = `
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Loan Applications</span>
+        <div style="display:flex;gap:8px;align-items:center">
+          <select id="filter-status" onchange="loadAllLoans()" style="width:auto;padding:7px 10px;font-size:.85rem">
+            <option value="">All statuses</option>
+            <option value="pending">Pending</option>
+            <option value="approved">Approved</option>
+            <option value="rejected">Rejected</option>
+          </select>
+          <button class="btn btn-ghost btn-sm" onclick="loadAllLoans()">Refresh</button>
+        </div>
+      </div>
+      <div id="al-msg"></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Amount</th><th>Term</th><th>Purpose</th><th>Status</th><th>Applied</th><th></th></tr></thead>
+          <tbody id="al-body"><tr><td colspan="6" class="empty-row">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </div>`;
+  loadAllLoans();
+}
+
+async function loadAllLoans() {
+  const statusEl = document.getElementById('filter-status');
+  const status   = statusEl ? statusEl.value : '';
+  const qs = status ? '?status=' + status : '';
+  const res = await apiFetch('/manager/loans' + qs);
+  if (!res) return;
+  const data = await res.json();
+  const tbody = document.getElementById('al-body');
+  if (!tbody) return;
+  if (!res.ok) { setAlert('al-msg', errMsg(data)); tbody.innerHTML = ''; return; }
+  const loans = data.data || data;
+  const canDecide = currentUser?.role === 'manager' || currentUser?.role === 'admin';
+  if (!loans.length) { tbody.innerHTML = '<tr><td colspan="6" class="empty-row">No loans found.</td></tr>'; return; }
+  tbody.innerHTML = loans.map(l => {
+    const isPending = l.status === 'pending';
+    return `<tr>
+      <td><strong>${fmtMoney(l.amount)}</strong></td>
+      <td>${l.term_months} mo</td>
+      <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${l.purpose}</td>
+      <td>${badge(l.status)}</td>
+      <td>${fmt(l.created_at)}</td>
+      <td>
+        <button class="btn btn-ghost btn-sm" onclick="openLoanDetail('${l.id}',${canDecide && isPending},true)">
+          ${canDecide && isPending ? 'Decide' : 'View'}
+        </button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+// ── Admin — Users ─────────────────────────────────────────────────────────────
+function renderUsers(container) {
+  container.innerHTML = `
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Registered Users</span>
+        <button class="btn btn-ghost btn-sm" onclick="loadUsers()">Refresh</button>
+      </div>
+      <div id="usr-msg"></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Registered</th><th></th></tr></thead>
+          <tbody id="usr-body"><tr><td colspan="6" class="empty-row">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </div>`;
+  loadUsers();
+}
+
+async function loadUsers() {
+  const res = await apiFetch('/admin/users');
+  if (!res) return;
+  const data = await res.json();
+  const tbody = document.getElementById('usr-body');
+  if (!tbody) return;
+  if (!res.ok) { setAlert('usr-msg', errMsg(data)); tbody.innerHTML = ''; return; }
+  const users = data.data || data;
+  tbody.innerHTML = users.map(u => `<tr>
+    <td><strong>${u.full_name}</strong></td>
+    <td style="color:var(--gray-500);font-size:.85rem">${u.email}</td>
+    <td>
+      <select class="role-select" style="padding:4px 8px;font-size:.8rem;width:auto"
+        onchange="changeRole('${u.id}', this.value)">
+        <option value="client"  ${u.role==='client'  ?'selected':''}>Client</option>
+        <option value="manager" ${u.role==='manager' ?'selected':''}>Manager</option>
+        <option value="admin"   ${u.role==='admin'   ?'selected':''}>Admin</option>
+      </select>
+    </td>
+    <td>${badge(u.is_active)}</td>
+    <td>${fmt(u.created_at)}</td>
+    <td>
+      <button class="btn btn-sm ${u.is_active ? 'btn-danger' : 'btn-success'}"
+        onclick="toggleUser('${u.id}', ${!u.is_active})">
+        ${u.is_active ? 'Deactivate' : 'Activate'}
+      </button>
+    </td>
+  </tr>`).join('');
+}
+
+async function toggleUser(id, newStatus) {
+  const res = await apiFetch('/admin/users/' + id + '/status', {
+    method:'PATCH', body: JSON.stringify({ is_active: newStatus })
+  });
+  if (!res) return;
+  if (res.ok) loadUsers();
+  else { const d = await res.json(); setAlert('usr-msg', errMsg(d)); }
+}
+
+async function changeRole(id, role) {
+  const res = await apiFetch('/admin/users/' + id + '/role', {
+    method:'PATCH', body: JSON.stringify({ role })
+  });
+  if (!res) return;
+  if (!res.ok) { const d = await res.json(); setAlert('usr-msg', errMsg(d)); loadUsers(); }
+}
+
+// ── Loan detail modal ─────────────────────────────────────────────────────────
+async function openLoanDetail(id, canDecide, isManager) {
+  currentLoanId = id;
+  const endpoint = isManager ? '/manager/loans/' + id : '/loans/' + id;
+  const res = await apiFetch(endpoint);
+  if (!res) return;
+  const data = await res.json();
+  const l = data.data || data;
+
+  document.getElementById('modal-title').textContent = 'Loan #' + id.slice(0,8) + '…';
+  document.getElementById('modal-detail').innerHTML = `
+    <span class="dl">Amount</span><span class="dv">${fmtMoney(l.amount)}</span>
+    <span class="dl">Term</span><span class="dv">${l.term_months} months</span>
+    <span class="dl">Status</span><span class="dv">${badge(l.status)}</span>
+    <span class="dl">Applied</span><span class="dv">${fmt(l.created_at)}</span>
+    <span class="dl">Updated</span><span class="dv">${fmt(l.updated_at)}</span>
+    <span class="dl">Purpose</span><span class="dv" style="grid-column:span 1">${l.purpose}</span>`;
+  document.getElementById('modal-decide').style.display = canDecide ? '' : 'none';
+  document.getElementById('decide-comment').value = '';
+  clearAlert('decide-msg');
+  document.getElementById('loan-modal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('loan-modal').classList.remove('open');
+  currentLoanId = null;
+}
+
+async function decide(decision) {
+  clearAlert('decide-msg');
+  const comment = document.getElementById('decide-comment').value.trim();
+  const res = await apiFetch('/manager/loans/' + currentLoanId + '/decide', {
+    method:'PATCH', body: JSON.stringify({ decision, comment })
+  });
+  if (!res) return;
+  const data = await res.json();
+  if (!res.ok) { setAlert('decide-msg', errMsg(data)); return; }
+  closeModal();
+  loadAllLoans();
+}
+
+document.getElementById('loan-modal').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeModal();
+});
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+applyRole();
+</script>
+</body>
+</html>
