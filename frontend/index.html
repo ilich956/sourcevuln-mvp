@@ -396,7 +396,9 @@ tr:hover td { background: var(--gray-50); }
 </div>
 
 <script>
-const API = 'http://localhost:8080/api/v1';
+const API = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+  ? 'http://localhost:8080/api/v1'
+  : '/api/v1';
 let accessToken  = localStorage.getItem('access_token')  || '';
 let refreshToken = localStorage.getItem('refresh_token') || '';
 let currentUser  = JSON.parse(localStorage.getItem('current_user') || 'null');

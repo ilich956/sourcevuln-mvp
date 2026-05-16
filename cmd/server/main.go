@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"bank-loan-mvp/frontend"
 	"bank-loan-mvp/internal/audit"
 	"bank-loan-mvp/migrations"
 
@@ -113,6 +114,8 @@ func main() {
 		})
 	})
 
+	r.Handle("/*", http.FileServer(http.FS(frontend.FS)))
+
 	log.Printf("Server starting on port %s", cfg.Port)
 	srv := &http.Server{
 		Addr:              ":" + cfg.Port,
@@ -130,7 +133,6 @@ func main() {
 func parseAllowedOrigins() []string {
 	raw := strings.TrimSpace(os.Getenv("ALLOWED_ORIGINS"))
 	if raw == "" {
-		// Reasonable dev defaults for running the static frontend locally.
 		return []string{"http://localhost:3000", "http://localhost", "http://127.0.0.1:3000", "http://127.0.0.1"}
 	}
 	parts := strings.Split(raw, ",")
