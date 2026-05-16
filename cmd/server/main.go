@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"bank-loan-mvp/internal/audit"
+	"bank-loan-mvp/migrations"
 
 	"github.com/joho/godotenv"
 
@@ -28,11 +29,11 @@ import (
 func main() {
 	_ = godotenv.Load()
 	cfg := config.Load()
-	if cfg.DatabaseURL == "" || cfg.JWTSecret == "" {
-		log.Fatal("DATABASE_URL and JWT_SECRET must be set")
+	if cfg.JWTSecret == "" {
+		log.Fatal("JWT_SECRET must be set")
 	}
 
-	pool, err := db.Connect(context.Background(), cfg.DatabaseURL)
+	pool, err := db.Connect(context.Background(), cfg.DBPath, migrations.UpFiles)
 	if err != nil {
 		log.Fatalf("DB error: %v", err)
 	}

@@ -1,14 +1,13 @@
 package handler
 
 import (
+	"database/sql"
 	"net/http"
-
-	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func Health(db *pgxpool.Pool) http.HandlerFunc {
+func Health(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		if err := db.Ping(r.Context()); err != nil {
+		if err := db.PingContext(r.Context()); err != nil {
 			writeError(w, http.StatusInternalServerError, "INTERNAL_ERROR", "service unavailable")
 			return
 		}

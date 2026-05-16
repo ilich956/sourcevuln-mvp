@@ -4,7 +4,7 @@ import "os"
 
 type Config struct {
 	Port        string
-	DatabaseURL string
+	DBPath      string
 	JWTSecret   string
 	Environment string
 }
@@ -12,7 +12,7 @@ type Config struct {
 func Load() *Config {
 	return &Config{
 		Port:        getEnv("PORT", "8080"),
-		DatabaseURL: os.Getenv("DATABASE_URL"),
+		DBPath:      getEnv("DB_PATH", "/tmp/bank_loan.db"),
 		JWTSecret:   os.Getenv("JWT_SECRET"),
 		Environment: getEnv("ENV", "development"),
 	}

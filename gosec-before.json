@@ -1,0 +1,215 @@
+{
+	"Golang errors": {
+		"/home/shai/ILYAS/sourcecodevuln3assingment/cmd/server/main.go": [
+			{
+				"line": 8,
+				"column": 2,
+				"error": "could not import bank-loan-mvp/internal/audit (invalid package name: \"\")"
+			},
+			{
+				"line": 10,
+				"column": 2,
+				"error": "could not import github.com/joho/godotenv (invalid package name: \"\")"
+			},
+			{
+				"line": 12,
+				"column": 2,
+				"error": "could not import bank-loan-mvp/internal/config (invalid package name: \"\")"
+			},
+			{
+				"line": 13,
+				"column": 2,
+				"error": "could not import bank-loan-mvp/internal/db (invalid package name: \"\")"
+			},
+			{
+				"line": 14,
+				"column": 2,
+				"error": "could not import bank-loan-mvp/internal/handler (invalid package name: \"\")"
+			},
+			{
+				"line": 15,
+				"column": 6,
+				"error": "could not import bank-loan-mvp/internal/middleware (invalid package name: \"\")"
+			},
+			{
+				"line": 16,
+				"column": 2,
+				"error": "could not import bank-loan-mvp/internal/repository (invalid package name: \"\")"
+			},
+			{
+				"line": 17,
+				"column": 2,
+				"error": "could not import bank-loan-mvp/internal/service (invalid package name: \"\")"
+			},
+			{
+				"line": 21,
+				"column": 2,
+				"error": "could not import github.com/go-chi/cors (invalid package name: \"\")"
+			},
+			{
+				"line": 22,
+				"column": 2,
+				"error": "could not import github.com/go-playground/validator/v10 (invalid package name: \"\")"
+			},
+			{
+				"line": 39,
+				"column": 14,
+				"error": "undefined: validator"
+			},
+			{
+				"line": 39,
+				"column": 28,
+				"error": "undefined: validator"
+			}
+		],
+		"/home/shai/ILYAS/sourcecodevuln3assingment/internal/audit/logger.go": [
+			{
+				"line": 9,
+				"column": 2,
+				"error": "could not import bank-loan-mvp/internal/model (invalid package name: \"\")"
+			},
+			{
+				"line": 10,
+				"column": 2,
+				"error": "could not import bank-loan-mvp/internal/repository (invalid package name: \"\")"
+			}
+		],
+		"/home/shai/ILYAS/sourcecodevuln3assingment/internal/handler/admin_handler.go": [
+			{
+				"line": 8,
+				"column": 2,
+				"error": "could not import bank-loan-mvp/internal/audit (invalid package name: \"\")"
+			},
+			{
+				"line": 9,
+				"column": 5,
+				"error": "could not import bank-loan-mvp/internal/middleware (invalid package name: \"\")"
+			},
+			{
+				"line": 10,
+				"column": 2,
+				"error": "could not import bank-loan-mvp/internal/model (invalid package name: \"\")"
+			},
+			{
+				"line": 11,
+				"column": 2,
+				"error": "could not import bank-loan-mvp/internal/service (invalid package name: \"\")"
+			}
+		],
+		"/home/shai/ILYAS/sourcecodevuln3assingment/internal/middleware/auth.go": [
+			{
+				"line": 9,
+				"column": 2,
+				"error": "could not import github.com/golang-jwt/jwt/v5 (invalid package name: \"\")"
+			},
+			{
+				"line": 29,
+				"column": 18,
+				"error": "undefined: jwt"
+			},
+			{
+				"line": 29,
+				"column": 50,
+				"error": "undefined: jwt"
+			},
+			{
+				"line": 31,
+				"column": 18,
+				"error": "undefined: jwt"
+			}
+		],
+		"/home/shai/ILYAS/sourcecodevuln3assingment/internal/repository/repository.go": [
+			{
+				"line": 9,
+				"column": 2,
+				"error": "could not import bank-loan-mvp/internal/model (invalid package name: \"\")"
+			}
+		],
+		"/home/shai/ILYAS/sourcecodevuln3assingment/internal/service/admin_service.go": [
+			{
+				"line": 7,
+				"column": 2,
+				"error": "could not import bank-loan-mvp/internal/model (invalid package name: \"\")"
+			},
+			{
+				"line": 8,
+				"column": 2,
+				"error": "could not import bank-loan-mvp/internal/repository (invalid package name: \"\")"
+			}
+		],
+		"/home/shai/ILYAS/sourcecodevuln3assingment/internal/service/auth_service.go": [
+			{
+				"line": 16,
+				"column": 2,
+				"error": "could not import github.com/go-playground/validator/v10 (invalid package name: \"\")"
+			},
+			{
+				"line": 17,
+				"column": 2,
+				"error": "could not import github.com/golang-jwt/jwt/v5 (invalid package name: \"\")"
+			},
+			{
+				"line": 24,
+				"column": 13,
+				"error": "undefined: validator"
+			},
+			{
+				"line": 28,
+				"column": 60,
+				"error": "undefined: validator"
+			},
+			{
+				"line": 47,
+				"column": 12,
+				"error": "undefined: jwt"
+			},
+			{
+				"line": 53,
+				"column": 9,
+				"error": "undefined: jwt"
+			},
+			{
+				"line": 53,
+				"column": 27,
+				"error": "undefined: jwt"
+			}
+		],
+		"/home/shai/ILYAS/sourcecodevuln3assingment/internal/service/loan_service.go": [
+			{
+				"line": 18,
+				"column": 12,
+				"error": "undefined: validator"
+			},
+			{
+				"line": 21,
+				"column": 60,
+				"error": "undefined: validator"
+			}
+		]
+	},
+	"Issues": [
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "676",
+				"url": "https://cwe.mitre.org/data/definitions/676.html"
+			},
+			"rule_id": "G114",
+			"details": "Use of net/http serve function that has no support for setting timeouts",
+			"file": "/home/shai/ILYAS/sourcecodevuln3assingment/cmd/server/main.go",
+			"code": "107: \tlog.Printf(\"Server starting on port %s\", cfg.Port)\n108: \tif err := http.ListenAndServe(\":\"+cfg.Port, r); err != nil {\n109: \t\tlog.Fatalf(\"Server failed: %v\", err)\n",
+			"line": "108",
+			"column": "12",
+			"nosec": false,
+			"suppressions": null
+		}
+	],
+	"Stats": {
+		"files": 21,
+		"lines": 1545,
+		"nosec": 0,
+		"found": 1
+	},
+	"GosecVersion": "dev"
+}
